@@ -4,29 +4,29 @@ from math import *
 import pygame3d as p3d
 import pygame3dGlobals as ag
 
-def drawCubeList(cubes):
+def drawCubeList(cubes, style="filledwire"):
     # drawCubes orders the provided list of cubes such that they're drawn back to front
     if ag.spin >= radians(0) and ag.spin < radians(90): cubes.sort(key=lambda i: -i[0][0]-i[0][1])
     elif ag.spin >= radians(90) and ag.spin < radians(180): cubes.sort(key=lambda i: -i[0][0]+i[0][1])
     elif ag.spin >= radians(180) and ag.spin < radians(270): cubes.sort(key=lambda i: i[0][0]+i[0][1])
     elif ag.spin >= radians(270) and ag.spin < radians(360): cubes.sort(key=lambda i: i[0][0]-i[0][1])
     for cube in cubes: 
-        drawCube(cube[0], cube[1], cube[2])
+        drawCube(cube[0], cube[1], cube[2], style)
     
-def drawCube((x1,y1,z1),(x2,y2,z2),color=ag.LINECOLOR):
+def drawCube((x1,y1,z1),(x2,y2,z2),color=ag.LINECOLOR, style="filledwire"):
     # drawCube takes two opposite corners of a cube and a color and
     # draws two front faces (based on rotation), then the top face
     if ag.spin < radians(90) or ag.spin > radians(270): 
-        p3d.gridDrawPolygon([(x1,y1,z1),(x1,y1,z2),(x2,y1,z2),(x2,y1,z1)],color)
+        p3d.gridDrawPolygon([(x1,y1,z1),(x1,y1,z2),(x2,y1,z2),(x2,y1,z1)],color,style)
     if ag.spin > radians(90) and ag.spin < radians(270): 
-        p3d.gridDrawPolygon([(x1,y2,z1),(x1,y2,z2),(x2,y2,z2),(x2,y2,z1)],color)
+        p3d.gridDrawPolygon([(x1,y2,z1),(x1,y2,z2),(x2,y2,z2),(x2,y2,z1)],color,style)
     if ag.spin < radians(180): 
-        p3d.gridDrawPolygon([(x1,y1,z1),(x1,y1,z2),(x1,y2,z2),(x1,y2,z1)],color)
+        p3d.gridDrawPolygon([(x1,y1,z1),(x1,y1,z2),(x1,y2,z2),(x1,y2,z1)],color,style)
     if ag.spin > radians(180): 
-        p3d.gridDrawPolygon([(x2,y1,z1),(x2,y1,z2),(x2,y2,z2),(x2,y2,z1)],color)
-    p3d.gridDrawPolygon([(x1,y1,z2),(x2,y1,z2),(x2,y2,z2),(x1,y2,z2)],color)
+        p3d.gridDrawPolygon([(x2,y1,z1),(x2,y1,z2),(x2,y2,z2),(x2,y2,z1)],color,style)
+    p3d.gridDrawPolygon([(x1,y1,z2),(x2,y1,z2),(x2,y2,z2),(x1,y2,z2)],color,style)
     
-def genSampleCubes(size):
+def genSampleCubes(size=5):
     def randomColor(randSeed="none"):
         if randSeed=="none": random.seed()
         else:random.seed(randSeed)
@@ -52,22 +52,23 @@ def prepareTerrain(array, color=ag.BLUE):
             terrainShades[face2] = p3d.shadedPlaneColor( p3d.planeNormal(face2), color )
     return terrainFaces, terrainShades
             
-def drawTerrain(terrainFaces, terrainShades):
+def drawTerrain(terrainFaces, terrainShades, style="flat"):
     if ag.spin >= radians(0) and ag.spin < radians(90): terrainFaces.sort(key=lambda i: -i[0][0]-i[0][1]-.5*i[1][0])
     elif ag.spin >= radians(90) and ag.spin < radians(135): terrainFaces.sort(key=lambda i: i[0][1]-i[0][0]-.5*i[1][0])
     elif ag.spin >= radians(135) and ag.spin < radians(180): terrainFaces.sort(key=lambda i: i[0][1]-i[0][0]+.5*i[1][0])
     elif ag.spin >= radians(180) and ag.spin < radians(270): terrainFaces.sort(key=lambda i: i[0][0]+i[0][1]+.5*i[1][0])
     elif ag.spin >= radians(270) and ag.spin < radians(315): terrainFaces.sort(key=lambda i: i[0][0]-i[0][1]+.5*i[1][0])
     elif ag.spin >= radians(315) and ag.spin < radians(360): terrainFaces.sort(key=lambda i: i[0][0]-i[0][1]-.5*i[1][0])
-    for face in terrainFaces: p3d.gridDrawPolygon(face, terrainShades[face])
+    for face in terrainFaces: p3d.gridDrawPolygon(face, terrainShades[face], style)
     
 def genSampleTerrain(size, scale=50):
     array = []
+    randomshift = random.randint(-scale,scale)
     for ii in range(size):
         array.append([])
         for jj in range(size):
             height = random.randint(50,90)
-            height +=  2*(size/2 - ii)*(size/2 - jj) 
+            height +=  2*(size/2 - ii)*(size/2 - jj) + randomshift
             if height < 0: height = 0
             array[ii].append( ((ii-size/2)*scale, (jj-size/2)*scale, height) )
     return array

@@ -6,13 +6,22 @@ import pygame3d as p3d
 import pygame3dGlobals as ag
 import axon as ax
 
-#sampleCubes = genSampleCubes(5)
-
+sampleCubes = ax.genSampleCubes(10)
 sampleTerrain = ax.genSampleTerrain(20,50)
 terrainFaces, terrainShades = ax.prepareTerrain(sampleTerrain)
     
-    
-demoMode = True
+#######################################
+rotatemode = 1
+demoMode = 1
+drawStyle = 0
+# demoModes:  1 = terrain
+#             2 = boxes
+# drawStyles: 0 = shaded
+#             1 = shaded + wireframe
+#             2 = wireframe
+drawStyles = ["flat", "filledwire", "wire"]
+#######################################
+
     
 done = False
 clock = time.Clock()
@@ -42,18 +51,19 @@ while done==False:
         p3d.gridDrawLine((-gridSize * numGridLines, jj * gridSize,0), (numGridLines * gridSize, jj * gridSize,0))
     p3d.gridDrawLine((0, -gridSize * numGridLines,0), (0, numGridLines * gridSize,0), ag.RED)
     p3d.gridDrawLine((-gridSize * numGridLines, 0,0), (numGridLines * gridSize, 0,0), ag.RED)
-       
-    ##########################################################################
-    
-    #drawCubeList(sampleCubes)
-    ax.drawTerrain(terrainFaces, terrainShades)
-       
     ##########################################################################
     
     # Draw white crosshairs
     p3d.screenDrawLine((ag.screenwidth/2-3,ag.screenheight/2),(ag.screenwidth/2+3,ag.screenheight/2),color=ag.WHITE)
     p3d.screenDrawLine((ag.screenwidth/2,ag.screenheight/2-3),(ag.screenwidth/2,ag.screenheight/2+3),color=ag.WHITE)
-    
+    if demoMode > 0:
+        if rotatemode == 1: 
+            ag.spin += radians(0.5)
+            ag.tilt = 0.1*sin( (ag.spin-radians(50)) ) + radians(75)
+        if demoMode == 1:
+            ax.drawTerrain(terrainFaces, terrainShades, drawStyles[drawStyle])
+        elif demoMode == 2:
+            ax.drawCubeList(sampleCubes, drawStyles[drawStyle])
     p3d.screenDrawStrings( ("Axonometric Experiment by Eric Dobbs",
                             "FPS: " + str(round(clock.get_fps(),1)),
                             "spin: "+ str(degrees(ag.spin)),
@@ -62,9 +72,11 @@ while done==False:
                             "horizontal offset: " + str(ag.horoff),
                             "vertical offset: " + str(ag.veroff)
                             ) )
-    if demoMode == True:
-        ag.spin += radians(0.5)
-        ag.tilt = 0.1*sin( (ag.spin-radians(50)) ) + radians(75)
+    p3d.screenDrawStrings( (" ",
+                            "Space: toggle draw mode",
+                            "2: cube demo",
+                            "1: terrain demo" 
+                            ), "bottomleft" )
     if spinTimer != 0:
         sign = spinTimer/abs(spinTimer)
         ag.spin += sign*radians(spinDegrees[sign*spinTimer])
@@ -109,7 +121,7 @@ while done==False:
                 dragStartX = mousescreenX
                 dragStartY = mousescreenY
         if myevent.type == MOUSEBUTTONDOWN and sum(heldMouseButtons) == 0:
-            demoMode = False
+            rotatemode = 0
             heldMouseButtons[myevent.button] = True
             if myevent.button == 4 and zoomTimer == 0: zoomTimer = 1
             if myevent.button == 5 and zoomTimer == 0: zoomTimer = -1
@@ -120,7 +132,7 @@ while done==False:
             heldMouseButtons[myevent.button] = False
             
         if myevent.type == KEYDOWN:
-            demoMode = False
+            rotatemode = 0
             shiftHeld = key.get_mods() & KMOD_SHIFT
             if myevent.key == K_q: 
                 done=True
@@ -163,7 +175,17 @@ while done==False:
                 ag.horoff -= multiplier* sin(ag.spin)/cos(ag.tilt)
                 
             if myevent.key == K_SPACE: 
-                print ag.tilt, ag.spin
+                drawStyle += 1
+                if drawStyle >= len(drawStyles): drawStyle = 0
+            if myevent.key == K_1: 
+                demoMode = 1
+                sampleTerrain = ax.genSampleTerrain(20,50)
+                terrainFaces, terrainShades = ax.prepareTerrain(sampleTerrain)
+                rotatemode = 1
+            if myevent.key == K_2: 
+                demoMode = 2
+                sampleCubes = ax.genSampleCubes(10)
+                rotatemode = 1
     ag.checkBounds()
     ag.display.flip()
     

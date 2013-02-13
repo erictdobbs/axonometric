@@ -27,19 +27,21 @@ def screenDrawLine((x1,y1),(x2,y2),color=ag.LINECOLOR):
     #   coordinate system
     draw.aaline(ag.screen,color,(x1,y1),(x2,y2))
 	
-def screenDrawPolygon(pointList,color=ag.LINECOLOR):
+def screenDrawPolygon(pointList,color=ag.LINECOLOR,style="flat"):
     # Draws a polygon to the coordinates based on the screen's
     #   coordinate system
     darkercolor = [color[0]/2, color[1]/2, color[2]/2]
     lightercolor = [(color[0]+255)/2, (color[1]+255)/2, (color[2]+255)/2]
-    draw.polygon(ag.screen,color,pointList)
+    if style != "wire": draw.polygon(ag.screen,color,pointList)
+    if style != "flat": draw.aalines(ag.screen,darkercolor,True,pointList)
 	  
-def screenDrawStrings(stringList, color=ag.WHITE):
+def screenDrawStrings(stringList, alignment="topleft", color=ag.WHITE):
     myfont = font.SysFont("Courier", 10)
     lineCounter = 0
     for string in stringList:
         label = myfont.render(string, 1, color)
-        ag.screen.blit(label,(5, 5 + 10*lineCounter) )
+        if alignment=="topleft": ag.screen.blit(label,(5, 5 + 10*lineCounter) )
+        elif alignment=="bottomleft": ag.screen.blit(label,(5, ag.screenheight - 10*lineCounter - 10) )
         lineCounter += 1
 
 gridScreenCoords = {}
@@ -77,7 +79,7 @@ def gridDrawLine((x1,y1,z1),(x2,y2,z2),color=ag.LINECOLOR):
     point2 = gridToScreen(((x2-ag.horoff)*ag.zoom, (y2-ag.veroff)*ag.zoom, z2*ag.zoom))
     screenDrawLine(point1, point2, color)
 	
-def gridDrawPolygon(pointList, color=ag.LINECOLOR):
+def gridDrawPolygon(pointList, color=ag.LINECOLOR, style="flat"):
     # Draws a polygon to the coordinates based on the in-game
     #   grid's coordinate system. Takes the tilt, spin, and
     #   zoom and pan into account automatically
@@ -85,5 +87,5 @@ def gridDrawPolygon(pointList, color=ag.LINECOLOR):
     newPoints = []
     for point in pointList:
         newPoints.append(gridToScreen(((point[0]-ag.horoff)*ag.zoom, (point[1]-ag.veroff)*ag.zoom, point[2]*ag.zoom)))
-    screenDrawPolygon(newPoints, color)
+    screenDrawPolygon(newPoints, color, style)
     
