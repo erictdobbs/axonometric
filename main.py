@@ -9,6 +9,7 @@ import axon as ax
 sampleCubes = ax.genSampleCubes(10)
 sampleTerrain = ax.genSampleTerrain(20,50)
 terrainFaces, terrainShades = ax.prepareTerrain(sampleTerrain)
+samplePyramid = ax.genSierpinski(2,100)
     
 #######################################
 rotatemode = 1
@@ -16,6 +17,7 @@ demoMode = 1
 drawStyle = 0
 # demoModes:  1 = terrain
 #             2 = boxes
+#             3 = Sierpinski
 # drawStyles: 0 = shaded
 #             1 = shaded + wireframe
 #             2 = wireframe
@@ -59,11 +61,13 @@ while done==False:
     if demoMode > 0:
         if rotatemode == 1: 
             ag.spin += radians(0.5)
-            ag.tilt = 0.1*sin( (ag.spin-radians(50)) ) + radians(75)
+            ag.tilt += 0.1 * (sin( ag.spin ) - sin( ag.spin+radians(1) ) )
         if demoMode == 1:
             ax.drawTerrain(terrainFaces, terrainShades, drawStyles[drawStyle])
         elif demoMode == 2:
             ax.drawCubeList(sampleCubes, drawStyles[drawStyle])
+        elif demoMode == 3:
+            ax.drawSierpinski(samplePyramid, ag.RED, drawStyles[drawStyle])
     p3d.screenDrawStrings( ("Axonometric Experiment by Eric Dobbs",
                             "FPS: " + str(round(clock.get_fps(),1)),
                             "spin: "+ str(degrees(ag.spin)),
@@ -74,6 +78,7 @@ while done==False:
                             ) )
     p3d.screenDrawStrings( (" ",
                             "Space: toggle draw mode",
+                            "3: Sierpinski demo",
                             "2: cube demo",
                             "1: terrain demo" 
                             ), "bottomleft" )
@@ -132,7 +137,7 @@ while done==False:
             heldMouseButtons[myevent.button] = False
             
         if myevent.type == KEYDOWN:
-            rotatemode = 0
+            #rotatemode = 0
             shiftHeld = key.get_mods() & KMOD_SHIFT
             if myevent.key == K_q: 
                 done=True
@@ -185,6 +190,10 @@ while done==False:
             if myevent.key == K_2: 
                 demoMode = 2
                 sampleCubes = ax.genSampleCubes(10)
+                rotatemode = 1
+            if myevent.key == K_3: 
+                demoMode = 3
+                samplePyramid = ax.genSierpinski(3,400)
                 rotatemode = 1
     ag.checkBounds()
     ag.display.flip()
