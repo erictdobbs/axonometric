@@ -9,7 +9,9 @@ Setup and Requirements
 
 This program requires Python 2.7 (free download at http://www.python.org) and pygame (free download at http://www.pygame.org). It was created for version 1.9.1 of pygame, but may work with newer versions.
 Once those are installed, make sure you have all four files (main.py, axon.py, pygame3d.py, pygame3dGlobals.py) downloaded. You can launch this program with the command 
+
     python main.py
+	
 once you navigate to the directory that you've downloaded the files to.
 
 Controls
